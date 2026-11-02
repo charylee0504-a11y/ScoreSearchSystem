@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学生期末成绩查询系统</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Microsoft YaHei",sans-serif;
+}
+
+body{
+    background:#edf3fb;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px;
+}
+
+.container{
+
+    width:900px;
+    background:white;
+
+    border-radius:15px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+
+    overflow:hidden;
+
+}
+
+.header{
+
+    background:linear-gradient(135deg,#2d68b3,#4d8ce0);
+
+    color:white;
+
+    padding:30px;
+
+    text-align:center;
+
+}
+
+.header h1{
+
+    font-size:32px;
+
+}
+
+.content{
+
+    padding:35px;
+
+}
+
+.input-group{
+
+    margin-bottom:22px;
+
+}
+
+.input-group label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    font-weight:bold;
+
+    color:#333;
+
+}
+
+.input-group input{
+
+    width:100%;
+
+    padding:13px;
+
+    font-size:16px;
+
+    border-radius:8px;
+
+    border:1px solid #ccc;
+
+    transition:.3s;
+
+}
+
+.input-group input:focus{
+
+    outline:none;
+
+    border-color:#2d68b3;
+
+    box-shadow:0 0 8px rgba(45,104,179,.3);
+
+}
+
+button{
+
+    width:100%;
+
+    padding:15px;
+
+    background:#2d68b3;
+
+    color:white;
+
+    font-size:18px;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+button:hover{
+
+    background:#1d4d87;
+
+}
+
+#error{
+
+    color:red;
+
+    margin-top:15px;
+
+    text-align:center;
+
+    display:none;
+
+    font-size:16px;
+
+}
+
+#result{
+
+    margin-top:30px;
+
+    display:none;
+
+}
+
+.infoTable{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-bottom:25px;
+
+}
+
+.infoTable td,.infoTable th{
+
+    border:1px solid #ddd;
+
+    padding:10px;
+
+    text-align:center;
+
+}
+
+.infoTable th{
+
+    background:#f2f6fc;
+
+}
+
+#printBtn{
+
+    margin-top:20px;
+
+    background:#3aa757;
+
+}
+
+#printBtn:hover{
+
+    background:#2c8243;
+
+}
+
+.footer{
+
+    margin-top:25px;
+
+    text-align:center;
+
+    color:#888;
+
+    font-size:13px;
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>2026-2026学年第一次阶段测试学生成绩查询系统</h1>
+
+<p>请输入学生姓名和身份证号码查询成绩</p>
+
+</div>
+
+<div class="content">
+
+<div class="input-group">
+
+<label>学生姓名</label>
+
+<input type="text" id="stuName" placeholder="请输入完整姓名">
+
+</div>
+
+<div class="input-group">
+
+<label>身份证号码</label>
+
+<input type="text" id="stuId" placeholder="请输入身份证号码">
+
+</div>
+
+<button onclick="searchScore()">
+
+查询成绩
+
+</button>
+
+<div id="error"></div>
+
+<div id="result">
+
+<table class="infoTable">
+
+<tbody><tr>
+
+<th>姓名</th>
+
+<td id="rName"></td>
+
+<th>身份证</th>
+
+<td id="rId"></td>
+
+</tr>
+
+<tr>
+
+<th>总分</th>
+
+<td id="rTotal"></td>
+
+<th>班级排名</th>
+
+<td id="rRank"></td>
+
+</tr>
+
+</tbody></table>
+
+<table class="infoTable">
+
+<tbody><tr>
+
+<th>语文</th>
+<td id="yw"></td>
+
+<th>数学</th>
+<td id="sx"></td>
+
+<th>英语</th>
+<td id="yy"></td>
+
+</tr>
+
+<tr>
+
+<th>数字摄像</th>
+<td id="szsx"></td>
+
+<th>AE</th>
+<td id="ae"></td>
+
+<th>网页</th>
+<td id="wy"></td>
+
+</tr>
+</tbody></table>
+
+<button id="printBtn" onclick="window.print()">
+
+打印成绩单
+
+</button>
+
+</div>
+
+<div class="footer">
+
+© Student Score Query System
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const scoreData=[
+
+{
+name:"刘欣蕾",
+yw:84,
+sx:80,
+yy:69,
+szsx:84,
+ae:100,
+wy:89,
+total:506,
+rank:2
+},
+
+{
+name:"刘思宇",
+yw:82,
+sx:81,
+yy:48,
+szsx:84,
+ae:100,
+wy:82,
+total:477,
+rank:6
+},
+
+{
+name:"来诗雨",
+yw:87,
+sx:99,
+yy:61,
+szsx:75,
+ae:95,
+wy:92,
+total:509,
+rank:1
+},
+
+{
+name:"赵艺",
+yw:79,
+sx:66,
+yy:59,
+szsx:84,
+ae:95,
+wy:80,
+total:464,
+rank:11
+},
+
+{
+name:"崔行恩",
+yw:87,
+sx:69,
+yy:47,
+szsx:77,
+ae:97,
+wy:82,
+total:459,
+rank:13
+},
+
+{
+name:"郭心怡",
+yw:77,
+sx:66,
+yy:49,
+szsx:76,
+ae:100,
+wy:94,
+total:462,
+rank:12
+},
+
+{
+name:"温思语",
+yw:84,
+sx:86,
+yy:46,
+szsx:82,
+ae:100,
+wy:89,
+total:487,
+rank:3
+},
+
+{
+name:"李文晴",
+yw:76,
+sx:75,
+yy:64,
+szsx:71,
+ae:70,
+wy:81,
+xl:96,
+ls:95,
+xx:94,
+total:437,
+rank:20
+},
+
+{
+name:"黄雨轩",
+yw:76,
+sx:42,
+yy:52,
+szsx:73,
+ae:97,
+wy:84,
+total:424,
+rank:21
+},
+
+{
+name:"生乐琦",
+yw:85,
+sx:75,
+yy:55,
+szsx:68,
+ae:65,
+wy:91,
+total:439,
+rank:19
+},
+
+{
+name:"路婧瑄",
+yw:76,
+sx:79,
+yy:68,
+szsx:78,
+ae:95,
+wy:76,
+total:472,
+rank:8
+},
+
+{
+name:"张柯欣",
+yw:87,
+sx:57,
+yy:56,
+szsx:66,
+ae:96,
+wy:80,
+total:442,
+rank:18
+},
+
+{
+name:"曹雨彤",
+yw:87,
+sx:61,
+yy:55,
+szsx:88,
+ae:100,
+wy:90,
+total:481,
+rank:4
+},
+
+{
+name:"王睿茜",
+yw:76,
+sx:42,
+yy:42,
+szsx:71,
+ae:50,
+wy:62,
+total:343,
+rank:40
+},
+
+{
+name:"马晨宇",
+yw:78,
+sx:54,
+yy:36,
+szsx:78,
+ae:90,
+wy:64,
+total:400,
+rank:27
+},
+
+{
+name:"关思彤",
+yw:85,
+sx:69,
+yy:56,
+szsx:84,
+ae:100,
+wy:86,
+total:480,
+rank:5
+},
+
+{
+name:"张雪琪",
+yw:84,
+sx:63,
+yy:53,
+szsx:54,
+ae:70,
+wy:25,
+total:349,
+rank:39
+},
+
+{
+name:"王文杰",
+yw:74,
+sx:69,
+yy:57,
+szsx:85,
+ae:35,
+wy:76,
+total:396,
+rank:28
+},
+
+{
+name:"刘炘烁",
+yw:75,
+sx:84,
+yy:56,
+szsx:80,
+ae:100,
+wy:78,
+total:473,
+rank:7
+},
+
+{
+name:"周佳佳",
+yw:80,
+sx:60,
+yy:38,
+szsx:53,
+ae:90,
+wy:73,
+total:394,
+rank:29
+},
+
+{
+name:"王雨婷",
+yw:79,
+sx:39,
+yy:33,
+szsx:79,
+ae:77,
+wy:43,
+total:350,
+rank:38
+},
+
+{
+name:"史立钧",
+yw:79,
+sx:69,
+yy:51,
+szsx:69,
+ae:100,
+wy:82,
+total:450,
+rank:16
+},
+
+{
+name:"韩迎欣",
+yw:78,
+sx:84,
+yy:49,
+szsx:83,
+ae:93,
+wy:80,
+total:467,
+rank:10
+},{
+name:"李沛然",
+yw:64,
+sx:39,
+yy:45,
+szsx:57,
+ae:68,
+wy:90,
+total:363,
+rank:35
+},
+
+{
+name:"秦晨菡",
+yw:80,
+sx:67,
+yy:64,
+szsx:75,
+ae:100,
+wy:82,
+total:468,
+rank:9
+},
+
+{
+name:"孙正阳",
+yw:75,
+sx:57,
+yy:44,
+szsx:62,
+ae:70,
+wy:63,
+total:371,
+rank:32
+},
+
+{
+name:"毕欣茹",
+yw:67,
+sx:61,
+yy:53,
+szsx:67,
+ae:85,
+wy:78,
+total:411,
+rank:23
+},
+
+{
+name:"张宪佳",
+yw:74,
+sx:39,
+yy:52,
+szsx:41,
+ae:60,
+wy:72,
+total:338,
+rank:41
+},
+
+{
+name:"苗雨佳",
+yw:81,
+sx:42,
+yy:52,
+szsx:66,
+ae:65,
+wy:90,
+total:360,
+rank:36
+},
+
+{
+name:"郭兆松",
+yw:35,
+sx:60,
+yy:58,
+szsx:54,
+ae:85,
+wy:66,
+total:358,
+rank:37
+},
+
+{
+name:"宋欣杭",
+yw:75,
+sx:36,
+yy:58,
+szsx:71,
+ae:25,
+wy:70,
+total:335,
+rank:42
+},
+
+{
+name:"李雪莹",
+yw:82,
+sx:54,
+yy:56,
+szsx:66,
+ae:70,
+wy:76,
+total:404,
+rank:24
+},
+
+{
+name:"陈乐珊",
+yw:81,
+sx:39,
+yy:61,
+szsx:59,
+ae:100,
+wy:63,
+total:403,
+rank:25
+},
+
+{
+name:"郭欣月",
+yw:84,
+sx:39,
+yy:58,
+szsx:67,
+ae:70,
+wy:71,
+total:389,
+rank:30
+},
+
+{
+name:"邢传慧",
+yw:72,
+sx:81,
+yy:70,
+szsx:70,
+ae:75,
+wy:82,
+total:450,
+rank:17
+},
+
+{
+name:"唐佳豪",
+yw:71,
+sx:36,
+yy:53,
+szsx:73,
+ae:70,
+wy:75,
+total:378,
+rank:31
+},
+
+{
+name:"陈晓静",
+yw:69,
+sx:73,
+yy:59,
+szsx:64,
+ae:95,
+wy:91,
+total:451,
+rank:15
+},
+
+{
+name:"田思齐",
+yw:91,
+sx:63,
+yy:40,
+szsx:72,
+ae:100,
+wy:87,
+total:453,
+rank:14
+},
+
+{
+name:"王兴志",
+yw:67,
+sx:21,
+yy:26,
+szsx:66,
+ae:93,
+wy:55,
+total:328,
+rank:44
+},
+
+{
+name:"沈红超",
+yw:67,
+sx:73,
+yy:50,
+szsx:67,
+ae:75,
+wy:68,
+total:400,
+rank:26
+},
+
+{
+name:"秦正启",
+yw:79,
+sx:72,
+yy:18,
+szsx:64,
+ae:25,
+wy:70,
+total:328,
+rank:43
+},
+
+{
+name:"孙誉宸",
+yw:80,
+sx:63,
+yy:35,
+szsx:67,
+ae:94,
+wy:73,
+total:412,
+rank:22
+},
+
+{
+name:"赵梦琪",
+yw:65,
+sx:35,
+yy:35,
+szsx:66,
+ae:95,
+wy:68,
+total:364,
+rank:34
+},
+
+{
+name:"田思源",
+yw:76,
+sx:21,
+yy:29,
+szsx:59,
+ae:70,
+wy:59,
+total:314,
+rank:45
+},
+
+{
+name:"丁子涵",
+yw:79,
+sx:84,
+yy:41,
+szsx:61,
+ae:68,
+wy:34,
+total:367,
+rank:33
+}
+
+];
+
+const idData={
+"刘思宇":"ee4000c119a74d4e916e9fed71b75fcd20be62aff59c3ea27f16a831226a527f",
+"李文晴":"e686debcab341301f39e77a9f3aa3d0e8de03d21ffe5ccd84b17fbe9f699194e",
+"路婧瑄":"09b38ad27f11479460b3641177f677e1ccacc66a18e528e6e232688fc48ebd74",
+"温思语":"08988bb15ba3687f29a903e2ff1a049f869d011e8bb705d5dff8249f9f56ce25",
+"关思彤":"35b34d18edf24041bce793c74f3a373e4af4e1b2c0b023197c373eeae477dc59",
+"来诗雨":"23fd266a250a6cd8d97833585173f89f3ed5c6e413c14b69fd414e3a79f3b0ab",
+"韩迎欣":"541719994c0730d6fc8b555db423c716af681ab192e162c64df98a973f785da6",
+"唐佳豪":"4fbc860c3fc69b751f46f410c95003008a9540e8c0aa4520d65e40507144b2c3",
+"田思齐":"3a2a3ca97c1e26e04e672b8505bbcdf4095f3284b3f623591e80fd0e3d507d9f",
+"王文杰":"e91fde9f776a027706bc7d9decf9626c30db329290ce0501c52e30cad53a3706",
+"刘欣蕾":"bc0ad9f9f0cbb8dcf76b485ee4feb8460aa874f090fb8aa3f9ab9974accb2554",
+"生乐琦":"fdbdda09aca64fb4706dcf0a6258e2b8cdd641191ef3379ab10f3409bbcce038",
+"秦正启":"7bdbf69e4b3fe77edea92990825cc3212845d79672ec5a3998a829bf9c39e06a",
+"赵艺":"fc94e73798900d6448fdb530f70d8eafa4a53a669f996856433e6c9d7513d370",
+"沈红超":"3cef4f8f5a5ce9e19df909b0075a74de868a3fd04e0c39c0ebfe543d9b7630a8",
+"张雪琪":"8b759709101d1bcfd48e5557e33add4b6e21efbaaaf661712c0c66ac8aca7fd5",
+"崔行恩":"75a9e4469e899816369fbcdb43157a648cbbff715f710a118ecfa08a01a91825",
+"郭心怡":"f0e3213b76401a5a75a9cf32536f17bacd62a547902e099c28e0db4b5de7d506",
+"张柯欣":"9f65674f6404b371b725ba1e4cde7b84039f4b30638a109bfeeb1555198c0967",
+"黄雨轩":"baff0fd5f84a21b808d97260a3ee49ad5ca5fe03720a0106d7f4e7e1df762d99",
+"刘炘烁":"483825c783dd6ec3775c8a4d3b854b16a634ff4946e37c2ecc860f9d66cafa80",
+"王兴志":"f1fc83f59c167c36d0dd311c00ffe4472fee5a2bd060dd5a8ea1ef573afe9a5f",
+"陈晓静":"29566ea120136a7350ee251957d2d97566a380932aa4fabb3dac2d5563311698",
+"毕欣茹":"3a51476c8d5e8bf75b71420dd559979bcd2021b0f256f341e9bb96dbf6daa7a4",
+"曹雨彤":"4c9f3bd7b7a972acba5bf56c260db1594ae93da7c1feb1e91f8ab574b8ee9302",
+"郭欣月":"230d14a57a27191d96afd4b267f332578c1bc50b779d64f2f945ea2eb78ba51f",
+"郭兆松":"185c14fa80a953cae1cdc69ef4453ca05a3265ab236507e3c245edf119d02424",
+"孙誉宸":"0632baf00d2511dd3692392c2c491bc3dc232aaf14d420b6e2537650a69fd087",
+"王雨婷":"ba89fbfd4b2b8f8b0b78cd574413fc2cb1824991a1b4f3ae5954d3ea4b33bc42",
+"田思源":"3ac2879e0b84d2f0dcfe64625a07ee0d9c9023382eb4c0dde3ac950e555ace08",
+"史立钧":"aa707815ea5cac6283f60bc9a88b930f3ee0771b58d6b8eaf6b8e939ed009b47",
+"王睿茜":"ae087192239034d09b56be9eae7cd1b1998882855814bf9b5b1b9afb60fabb29",
+"赵梦琪":"e2c638f8221f9e86210ef99b6d7b0bcc2ae8695ef67c0cab2d026a6346a574e4",
+"张宪佳":"0965d04b4cf8b50f6bd1147bcb159a2b925051ebe84a16afef41f70e5c78e234",
+"孙正阳":"e3da3e3b044d78694f7495555b02252d8fbe8dbc38215657862d8f5189781db8",
+"李雪莹":"7fe26aa1f0e1471514d95049a9838cd9442f54e8f2947b3b4da15889d9f0f981",
+"周佳佳":"4a25a2f9a181c09fad9c52dec0e864d74a6fc5255a5af316dd5258045722f106",
+"邢传慧":"58e72755b6b929d96aec2b2ed7195f8b5626407b1590d001b71ccf9e2fdb9e8b",
+"秦晨菡":"cf2b2e5691d08b1edab428140e98358b104350428a0620872635935783e0dd7d",
+"苗雨佳":"f4565d765e7e7a8c11a7eb8884cc8354b67b694882d1380b3a771cd77f9bc7bc",
+"陈乐珊":"53925ff6e0a8fe6e27fe218efcb3a67a107e10dddc28f6e337da6a2849bae1b9",
+"宋欣杭":"5015e56b9a0e4cf6a85bfdb54cf8a4c5a4cb92bcaa6c0f9a3095a489f88824e1",
+"李沛然":"d5b2f9cc13c143976e42218f763e571aed3673d6b2b6c047b54c0228de55c364",
+"马晨宇":"466cccc5928447d4af54f392eff330cb6bc34e909321b8043cb20bce43e66376",
+"丁子涵":"9d990e2f2180e4dd0c74cf08da2aae90e171be39706d1651c128d9378a6ca9c5",
+};function showError(message){
+
+    document.getElementById("error").style.display="block";
+    document.getElementById("error").innerHTML=message;
+
+    document.getElementById("result").style.display="none";
+
+}
+
+function hideError(){
+
+    document.getElementById("error").style.display="none";
+
+}
+
+function hashId(s){
+  function ror(x,n){return (x>>>n)|(x<<(32-n));}
+  var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+         0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+         0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+         0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+         0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+         0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+         0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+         0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  var str="sc2026-salt-"+s;
+  var bytes=[];
+  for(var i=0;i<str.length;i++){
+    var c=str.charCodeAt(i);
+    if(c<128){bytes.push(c);}
+    else if(c<2048){bytes.push(192|(c>>6),128|(c&63));}
+    else{bytes.push(224|(c>>12),128|((c>>6)&63),128|(c&63));}
+  }
+  var l=bytes.length*8;
+  bytes.push(128);
+  while(bytes.length%64!==56){bytes.push(0);}
+  bytes.push(0,0,0,0,(l>>>24)&255,(l>>>16)&255,(l>>>8)&255,l&255);
+  var w=new Array(64);
+  for(var off=0;off<bytes.length;off+=64){
+    for(i=0;i<16;i++){w[i]=(bytes[off+i*4]<<24)|(bytes[off+i*4+1]<<16)|(bytes[off+i*4+2]<<8)|bytes[off+i*4+3];}
+    for(i=16;i<64;i++){
+      var s0=ror(w[i-15],7)^ror(w[i-15],18)^(w[i-15]>>>3);
+      var s1=ror(w[i-2],17)^ror(w[i-2],19)^(w[i-2]>>>10);
+      w[i]=(w[i-16]+s0+w[i-7]+s1)|0;
+    }
+    var a=H[0],b=H[1],cc=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(i=0;i<64;i++){
+      var S1=ror(e,6)^ror(e,11)^ror(e,25);
+      var ch=(e&f)^((~e)&g);
+      var t1=(h+S1+ch+K[i]+w[i])|0;
+      var S0=ror(a,2)^ror(a,13)^ror(a,22);
+      var maj=(a&b)^(a&cc)^(b&cc);
+      var t2=(S0+maj)|0;
+      h=g;g=f;f=e;e=(d+t1)|0;d=cc;cc=b;b=a;a=(t1+t2)|0;
+    }
+    H[0]=(H[0]+a)|0;H[1]=(H[1]+b)|0;H[2]=(H[2]+cc)|0;H[3]=(H[3]+d)|0;
+    H[4]=(H[4]+e)|0;H[5]=(H[5]+f)|0;H[6]=(H[6]+g)|0;H[7]=(H[7]+h)|0;
+  }
+  var hex="";
+  for(i=0;i<8;i++){var x=H[i];for(var j=3;j>=0;j--){var by=(x>>>(j*8))&255;hex+=(by<16?"0":"")+by.toString(16);}}
+  return hex;
+}
+
+function searchScore(){
+
+    hideError();
+
+    let name=document.getElementById("stuName").value.trim();
+
+    let id=document.getElementById("stuId").value.trim().toUpperCase();
+
+    if(name===""){
+
+        showError("请输入学生姓名！");
+
+        return;
+
+    }
+
+    if(id===""){
+
+        showError("请输入身份证号码！");
+
+        return;
+
+    }
+
+    let stu=null;
+
+    for(let i=0;i<scoreData.length;i++){
+
+        if(scoreData[i].name===name){
+
+            stu=scoreData[i];
+
+            break;
+
+        }
+
+    }
+
+    if(stu==null){
+
+        showError("未找到该学生，请检查姓名是否正确！");
+
+        return;
+
+    }
+
+    if(idData[name]!==hashId(id)){
+
+        showError("身份证号码错误，请重新输入！");
+
+        return;
+
+    }
+
+    document.getElementById("result").style.display="block";
+
+    document.getElementById("rName").innerHTML=name;
+
+    document.getElementById("rId").innerHTML=id;
+
+    document.getElementById("rTotal").innerHTML=stu.total;
+
+    document.getElementById("rRank").innerHTML=stu.rank;
+
+    document.getElementById("yw").innerHTML=stu.yw;
+
+    document.getElementById("sx").innerHTML=stu.sx;
+
+    document.getElementById("yy").innerHTML=stu.yy;
+
+    document.getElementById("szsx").innerHTML=stu.szsx;
+
+    document.getElementById("ae").innerHTML=stu.ae;
+
+    document.getElementById("wy").innerHTML=stu.wy;
+
+    document.getElementById("xl").innerHTML=stu.xl;
+
+    document.getElementById("ls").innerHTML=stu.ls;
+
+    document.getElementById("xx").innerHTML=stu.xx;
+
+}
+
+document.getElementById("stuName").addEventListener("keydown",function(e){
+
+    if(e.key==="Enter"){
+
+        searchScore();
+
+    }
+
+});
+
+document.getElementById("stuId").addEventListener("keydown",function(e){
+
+    if(e.key==="Enter"){
+
+        searchScore();
+
+    }
+
+});
+
+document.getElementById("stuId").addEventListener("input",function(){
+
+    this.value=this.value.toUpperCase();
+
+});
+
+</script>
+
+
+
+</body>
+</html>
